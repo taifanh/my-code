@@ -11,12 +11,10 @@ const int LG = 18;
 
 int n, m = 0, in[ar], out[ar];
 vector <int> g[ar];
-int idx[ar];
 int h[ar], up[ar][LG + 1];
 
 void dfs(int u) {
     in[u] = ++m;
-    idx[m] = u;
     for(int v : g[u]) if(v != up[u][0]){
         h[v] = h[u] + 1;
         up[v][0] = u;
@@ -24,7 +22,7 @@ void dfs(int u) {
             up[v][j] = up[up[v][j - 1]][j - 1];
         dfs(v);
     }
-    out[u] = ++m;
+    out[u] = m;
 }
 
 int park(int u, int k) {
@@ -63,7 +61,7 @@ void refine(int id) {
 int update(int id, int l, int r, int u, int v) {
     int cur = ++nNode;
     if(l == r) {
-        st[cur] = {v, 0, 0};
+        st[cur].cnt = st[id].cnt + v;
         return cur;
     }
 
@@ -85,23 +83,6 @@ int get(int lid, int rid, int l, int r, int u, int v) {
     if(mid + 1 <= v) res += get(st[lid].r, st[rid].r, mid + 1, r, u, v);
     return res;
 }
-
-int build(int l, int r) {
-    int cur = ++nNode;
-    if(l == r) {
-        if(idx[l]) st[cur] = {1, 0, 0};
-        else st[cur] = {-1, 0, 0};
-        cout << l << ' ' << st[cur].cnt << '\n';
-        return cur;
-    }
-
-    int mid = l + r >> 1;
-    st[cur].l = build(l, mid);
-    st[cur].r = build(mid + 1, r);
-    refine(cur);
-    return cur;
-}
-
 signed main() {
     ios_base::sync_with_stdio(0);
     cin.tie(0); cout.tie(0);
@@ -121,9 +102,6 @@ signed main() {
     }
     h[0] = -1;
     dfs(1);
-//    for(int i = 1; i <= n; ++i)
-//        cout << in[i] << ' ' << out[i] << '\n';
-//    ver[0] = build(1, m);
 
     int q, t, a, b, k, y;
     cin >> q;
@@ -136,7 +114,6 @@ signed main() {
         }
         else {
             cin >> b >> k >> y;
-//            cout << in[a] << ' ' << out[a] << ' ' << in[b] << ' ' << out[b] << '\n';
             int p =  lca(a, b);
             int cnt = h[a] - h[p] + h[b] - h[p] - 1;
             int l = 1, r = cnt, res = -1;
@@ -147,7 +124,6 @@ signed main() {
                     int anc = park(b, cnt - mid + 1);
                     ok = get(ver[y], ver[i], 1, m, in[a] + 1, in[anc]);
                     ok = h[anc] - h[a] - ok;
-//                    cout << mid << ' ' << in[a] + 1 << ' ' << in[anc] << ' ' << ok << '\n';
                 }
                 else if(in[a] > in[b] && out[a] < out[b]) {
                     int anc = park(a, mid);
@@ -159,7 +135,6 @@ signed main() {
                     if(h[anc] < h[p]) {
                         anc = park(b, cnt - mid + 1);
                         ok = get(ver[y], ver[i], 1, m, in[p] + 1, in[anc]) + get(ver[y], ver[i], 1, m, in[p], in[up[a][0]]);
-//                        cout << mid << ' ' << up[a][0] << ' ' << anc << ' ' << ok << '\n';
                         ok = h[anc] - h[p] + h[a] - h[p] - ok;
                     }
                     else {
@@ -175,10 +150,9 @@ signed main() {
                 cout << res << '\n';
                 continue;
             }
-            int par = park(a, res);
-//            cout << res << ' ' << par << '\n';
-            if(h[par] < h[p]) par = park(b, cnt - res + 1);
-            cout << par << '\n';
+            int anc = park(a, res);
+            if(h[anc] < h[p]) anc = park(b, cnt - res + 1);
+            cout << anc << '\n';
         }
     }
 }

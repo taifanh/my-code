@@ -9,7 +9,7 @@ typedef long long ll;
 const int ar = 1e6+2;
 const ll mod = 1e9+7;
 const int oo = 1e9;
-const int S = 632;
+const int S = 450;
 
 struct Query {
     int l, r, i;
